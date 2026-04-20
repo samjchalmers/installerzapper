@@ -1,5 +1,5 @@
 {
-  "name": "deleteinstallers",
+  "name": "installerzapper",
   "version": "1.0.0",
   "description": "Scan your hard drive for installer files and reclaim disk space.",
   "author": "Sam",
@@ -14,8 +14,8 @@
     "electron-builder": "^25.0.0"
   },
   "build": {
-    "appId": "com.sam.deleteinstallers",
-    "productName": "Delete Installers",
+    "appId": "com.sam.installerzapper",
+    "productName": "Installer Zapper",
     "copyright": "Copyright © 2026 Sam",
     "directories": {
       "output": "dist"
@@ -33,7 +33,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Delete Installers",
+      "shortcutName": "Installer Zapper",
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico"
     }

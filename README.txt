@@ -1,5 +1,5 @@
-Delete Installers
-=================
+Installer Zapper
+================
 
 A Windows desktop app that scans your hard drives for installer files (.exe,
 .msi, .msix, etc.) and moves them to the Recycle Bin to reclaim disk space.
@@ -38,7 +38,7 @@ Build from source
 
     npm install
     npm start          # run in development (no UAC — some dirs skipped)
-    npm run build      # produce dist/Delete Installers Setup 1.0.0.exe
+    npm run build      # produce dist/Installer Zapper Setup 1.0.0.exe
     npm run build:dir  # produce unpacked app in dist/win-unpacked/
 
 
