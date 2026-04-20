@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; style-src 'self' 'unsafe-inline'" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Delete Installers</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ── Title bar region (custom drag area) ── -->
+  <div class="titlebar">
+    <div class="titlebar-drag">
+      <svg class="titlebar-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span class="titlebar-title">Delete Installers</span>
+    </div>
+  </div>
+
+  <!-- ── Toolbar ── -->
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <label class="toolbar-label">Scan drives</label>
+      <div id="drive-list" class="drive-list">
+        <!-- populated by renderer.js -->
+        <span class="drive-loading">Loading drives…</span>
+      </div>
+    </div>
+    <div class="toolbar-right">
+      <button id="btn-scan" class="btn btn-primary" disabled>
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Scan
+      </button>
+      <button id="btn-cancel" class="btn btn-ghost" disabled>Cancel</button>
+    </div>
+  </div>
+
+  <!-- ── Status bar ── -->
+  <div class="statusbar" id="statusbar">
+    <div class="statusbar-left">
+      <div id="spinner" class="spinner hidden"></div>
+      <span id="status-text" class="status-text">Select drives and click Scan to begin.</span>
+    </div>
+    <span id="found-count" class="found-count"></span>
+  </div>
+
+  <!-- ── Filter bar ── -->
+  <div class="filterbar">
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none">
+        <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+        <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <input id="filter-input" type="text" class="filter-input" placeholder="Filter by name, folder, or type…" />
+      <button id="filter-clear" class="filter-clear hidden" title="Clear filter">×</button>
+    </div>
+    <span id="filter-count" class="filter-count"></span>
+  </div>
+
+  <!-- ── Results table ── -->
+  <div class="table-wrap">
+    <table class="results-table" id="results-table">
+      <thead>
+        <tr>
+          <th class="col-check">
+            <label class="checkbox-wrap">
+              <input type="checkbox" id="check-all" />
+              <span class="checkmark"></span>
+            </label>
+          </th>
+          <th class="col-name sortable" data-col="name">
+            Filename <span class="sort-icon">⇅</span>
+          </th>
+          <th class="col-type sortable" data-col="label">
+            Type <span class="sort-icon">⇅</span>
+          </th>
+          <th class="col-size sortable" data-col="size">
+            Size <span class="sort-icon">⇅</span>
+          </th>
+          <th class="col-path sortable" data-col="dir">
+            Folder <span class="sort-icon">⇅</span>
+          </th>
+          <th class="col-reveal"></th>
+        </tr>
+      </thead>
+      <tbody id="results-body">
+        <!-- rows injected by renderer.js -->
+      </tbody>
+    </table>
+
+    <div id="empty-state" class="empty-state">
+      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="2" opacity=".2"/>
+        <path d="M22 32h20M32 22v20" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".4"/>
+      </svg>
+      <p>No installers found yet.</p>
+      <p class="empty-sub">Select drives above and click <strong>Scan</strong>.</p>
+    </div>
+  </div>
+
+  <!-- ── Footer / action bar ── -->
+  <div class="footer">
+    <div class="footer-left">
+      <button id="btn-select-all" class="btn btn-ghost btn-sm">Select all</button>
+      <button id="btn-deselect-all" class="btn btn-ghost btn-sm">Deselect all</button>
+    </div>
+    <div class="footer-right">
+      <span id="selection-summary" class="selection-summary"></span>
+      <button id="btn-delete" class="btn btn-danger" disabled>
+        <svg viewBox="0 0 24 24" fill="none"><polyline points="3 6 5 6 21 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M19 6l-1 14H6L5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M10 11v6M14 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M9 6V4h6v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Move to Recycle Bin
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Confirmation modal ── -->
+  <dialog id="confirm-dialog" class="dialog">
+    <div class="dialog-content">
+      <h2 class="dialog-title">Move to Recycle Bin?</h2>
+      <p id="dialog-body" class="dialog-body"></p>
+      <div class="dialog-warning">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2"/><line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="17" x2="12.01" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Files go to the Recycle Bin — you can restore them if needed.
+      </div>
+      <div class="dialog-actions">
+        <button id="dialog-cancel" class="btn btn-ghost">Cancel</button>
+        <button id="dialog-confirm" class="btn btn-danger">Yes, move to Bin</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ── Error/result toast ── -->
+  <div id="toast" class="toast hidden">
+    <span id="toast-msg"></span>
+    <button id="toast-close" class="toast-close">✕</button>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
