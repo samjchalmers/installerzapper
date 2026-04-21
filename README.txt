@@ -69,8 +69,8 @@ Known limitations
 
 - Windows only. The drive enumeration uses WMIC with a PowerShell
   fallback; neither is available on macOS or Linux.
-- The bundled icon is a placeholder. The build is unsigned, so Windows
-  SmartScreen will show an "Unknown publisher" warning on first run.
+- The build is unsigned, so Windows SmartScreen will show an "Unknown
+  publisher" warning on first run.
 
 
 Licence
