@@ -723,3 +723,57 @@ tbody td {
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
+
+/* ── Export dropdown ─────────────────────────────────────────────────────── */
+
+.export-wrap {
+  position: relative;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.export-wrap .caret {
+  font-size: 10px;
+  margin-left: 2px;
+  opacity: .7;
+}
+
+.export-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 180px;
+  background: var(--surface);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(0,0,0,.5);
+  padding: 4px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.export-menu-item {
+  background: none;
+  border: none;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 12px;
+  text-align: left;
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .1s;
+}
+
+.export-menu-item:hover {
+  background: var(--surface-2);
+}
+
+.export-menu-sep {
+  height: 1px;
+  background: var(--border);
+  margin: 2px 0;
+}

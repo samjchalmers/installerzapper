@@ -37,6 +37,8 @@ const toastClose    = $('toast-close');
 const filterInput   = $('filter-input');
 const filterClear   = $('filter-clear');
 const filterCount   = $('filter-count');
+const btnExport     = $('btn-export');
+const exportMenu    = $('export-menu');
 
 // ── Formatting helpers ────────────────────────────────────────────────────────
 
@@ -243,7 +245,95 @@ function updateFooter(visible) {
     selectionSummary.textContent = `${n} file${n > 1 ? 's' : ''} selected — ${fmtSize(totalBytes)} will be freed`;
     btnDelete.disabled = false;
   }
+
+  btnExport.disabled = visible.length === 0;
 }
+
+// ── Export ────────────────────────────────────────────────────────────────────
+
+function escMdCell(s) {
+  return String(s).replace(/\|/g, '\\|').replace(/\r?\n/g, ' ');
+}
+
+function toMarkdown(rows) {
+  const header = '| Filename | Type | Size | Folder |\n| --- | --- | --- | --- |';
+  const body = rows.map((f) =>
+    `| ${escMdCell(f.name)} | ${escMdCell(f.label)} | ${fmtSize(f.size)} | ${escMdCell(f.dir)} |`
+  ).join('\n');
+  return `${header}\n${body}\n`;
+}
+
+function escCsvCell(s) {
+  const v = String(s);
+  return /[",\r\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
+}
+
+function toCsv(rows) {
+  const header = 'Filename,Type,Size,Bytes,Folder';
+  const body = rows.map((f) =>
+    [f.name, f.label, fmtSize(f.size), f.size, f.dir].map(escCsvCell).join(',')
+  ).join('\r\n');
+  return `${header}\r\n${body}\r\n`;
+}
+
+function timestamp() {
+  const d = new Date();
+  const p = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}`;
+}
+
+async function handleExport(action) {
+  const rows = getVisible();
+  if (!rows.length) return;
+
+  const isMd = action.endsWith('md');
+  const content = isMd ? toMarkdown(rows) : toCsv(rows);
+
+  if (action.startsWith('copy')) {
+    try {
+      await window.api.writeClipboard(content);
+      showToast(`${rows.length} row${rows.length !== 1 ? 's' : ''} copied as ${isMd ? 'Markdown' : 'CSV'}.`);
+    } catch (err) {
+      showToast(`Copy failed: ${err.message}`);
+    }
+    return;
+  }
+
+  const defaultName = `installers-${timestamp()}.${isMd ? 'md' : 'csv'}`;
+  try {
+    const res = await window.api.saveExport({ content, defaultName, format: isMd ? 'md' : 'csv' });
+    if (!res.canceled) {
+      showToast(`Saved ${rows.length} row${rows.length !== 1 ? 's' : ''} to ${res.filePath}`);
+    }
+  } catch (err) {
+    showToast(`Save failed: ${err.message}`);
+  }
+}
+
+btnExport.addEventListener('click', (e) => {
+  e.stopPropagation();
+  exportMenu.classList.toggle('hidden');
+});
+
+exportMenu.addEventListener('click', (e) => {
+  const btn = e.target.closest('.export-menu-item');
+  if (!btn) return;
+  exportMenu.classList.add('hidden');
+  handleExport(btn.dataset.action);
+});
+
+document.addEventListener('click', (e) => {
+  if (!exportMenu.classList.contains('hidden') &&
+      !e.target.closest('.export-wrap')) {
+    exportMenu.classList.add('hidden');
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !exportMenu.classList.contains('hidden')) {
+    exportMenu.classList.add('hidden');
+  }
+});
 
 // ── Sort headers ──────────────────────────────────────────────────────────────
 

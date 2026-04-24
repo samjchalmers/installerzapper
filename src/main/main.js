@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, dialog, clipboard } = require('electron');
 const path = require('path');
 const { getDrives, startScan, cancelScan } = require('./scanner');
 const fs = require('fs').promises;
@@ -76,6 +76,23 @@ ipcMain.handle('files:delete', async (_event, paths) => {
 
 ipcMain.handle('shell:showItem', async (_event, filePath) => {
   shell.showItemInFolder(filePath);
+});
+
+ipcMain.handle('export:save', async (_event, { content, defaultName, format }) => {
+  const filters = format === 'csv'
+    ? [{ name: 'CSV', extensions: ['csv'] }]
+    : [{ name: 'Markdown', extensions: ['md'] }];
+  const result = await dialog.showSaveDialog(mainWindow, {
+    defaultPath: defaultName,
+    filters,
+  });
+  if (result.canceled || !result.filePath) return { canceled: true };
+  await fs.writeFile(result.filePath, content, 'utf8');
+  return { canceled: false, filePath: result.filePath };
+});
+
+ipcMain.handle('clipboard:write', (_event, text) => {
+  clipboard.writeText(text);
 });
 
 // ── App lifecycle ─────────────────────────────────────────────────────────────

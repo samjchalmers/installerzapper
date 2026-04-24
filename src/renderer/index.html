@@ -57,6 +57,20 @@
       <button id="filter-clear" class="filter-clear hidden" title="Clear filter">×</button>
     </div>
     <span id="filter-count" class="filter-count"></span>
+    <div class="export-wrap">
+      <button id="btn-export" class="btn btn-ghost btn-sm" disabled title="Export the currently visible list">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Export
+        <span class="caret">▾</span>
+      </button>
+      <div id="export-menu" class="export-menu hidden" role="menu">
+        <button class="export-menu-item" data-action="copy-md">Copy as Markdown</button>
+        <button class="export-menu-item" data-action="copy-csv">Copy as CSV</button>
+        <div class="export-menu-sep"></div>
+        <button class="export-menu-item" data-action="save-md">Save as .md…</button>
+        <button class="export-menu-item" data-action="save-csv">Save as .csv…</button>
+      </div>
+    </div>
   </div>
 
   <!-- ── Results table ── -->
